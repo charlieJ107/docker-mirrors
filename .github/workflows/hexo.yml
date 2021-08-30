@@ -1,4 +1,4 @@
-name: Build Kaggle GPU Python Image
+name: Build Hexo Image
 
 on: 
   push:
