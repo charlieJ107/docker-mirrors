@@ -1,3 +1,3 @@
-# K8s GCR Mirrors
+# Docker Mirrors
 
-Mirrors of Google Container Registry for K8s
+Mirrors of some conatainer images such as dockerfile for Google Container Registry for K8s
