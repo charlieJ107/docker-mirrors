@@ -1,4 +1,4 @@
-name: Build Kaggle GPU Python Image
+name: Build Bigdl-Orca Developer Container
 
 on: 
   push:
@@ -24,9 +24,9 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
-          context: ./kaggle
-          file: kaggle/gpu.dockerfile
+          context: bigdl/
+          file: bigdl/orca-dev.dockerfile
           push: true
           tags: |
-            vankyle2go/kaggle-gpu-python:v102
-            vankyle2go/kaggle-gpu-python:latest
+            vankyle2go/orca-dev:${{ env.GITHUB_SHA }}
+            vankyle2go/orca-dev:latest

@@ -28,5 +28,5 @@ jobs:
           file: hexo/hexo.dockerfile
           push: true
           tags: |
-            vankyle2go/hexo:5.4.0
+            vankyle2go/hexo:${{ env.GITHUB_SHA}}
             vankyle2go/hexo:latest
