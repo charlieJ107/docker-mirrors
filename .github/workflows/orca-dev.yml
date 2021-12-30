@@ -21,12 +21,20 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME_VANKYLE2GO }}
           password: ${{ secrets.DOCKERHUB_TOKEN_VANKYLE2GO }}
 
+      - name: Docker Meta
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: vankyle2go/orca-dev
+          flavor: |
+            latest=true
+          tags: |
+            type=sha
+
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
           context: bigdl/
           file: bigdl/orca-dev.dockerfile
           push: true
-          tags: |
-            vankyle2go/orca-dev:${GITHUB_SHA}
-            vankyle2go/orca-dev:latest
+          tags: ${{ steps.meta.outputs.tags }}

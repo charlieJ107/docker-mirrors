@@ -21,12 +21,21 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME_VANKYLE2GO }}
           password: ${{ secrets.DOCKERHUB_TOKEN_VANKYLE2GO }}
 
+      - name: Docker Meta
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: vankyle2go/hexo
+          flavor: |
+            latest=true
+          tags: |
+            type=sha
+
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
           context: hexo/
           file: hexo/hexo.dockerfile
           push: true
-          tags: |
-            vankyle2go/hexo:${GITHUB_SHA}
-            vankyle2go/hexo:latest
+          tags: ${{ steps.meta.outputs.tags }}
+            
