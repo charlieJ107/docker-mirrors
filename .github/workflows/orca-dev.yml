@@ -28,5 +28,5 @@ jobs:
           file: bigdl/orca-dev.dockerfile
           push: true
           tags: |
-            vankyle2go/orca-dev:$GITHUB_SHA
+            vankyle2go/orca-dev:${{ env.GITHUB_SHA }}
             vankyle2go/orca-dev:latest
