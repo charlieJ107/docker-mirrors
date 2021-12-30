@@ -26,8 +26,11 @@ jobs:
         uses: docker/metadata-action@v3
         with:
           images: vankyle2go/hexo
+          flavor: |
+            latest=auto
           tags: |
             type=sha
+            type=ref
 
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
