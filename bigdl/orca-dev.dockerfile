@@ -10,17 +10,6 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 USER root
 
-RUN if [ ! -z "$HTTPS_PROXY" ] || [ ! -z "$HTTP_PROXY" ]; then \
-    echo "Setting Proxy..."; \
-    echo "export http_proxy=${HTTP_PROXY}" >> /etc/profile.d/02-proxy.sh; \
-    echo "export https_proxy=${HTTPS_PROXY}" >> /etc/profile.d/02-proxy.sh; \
-    echo "export HTTP_PROXY=${HTTP_PROXY}" >> /etc/profile.d/02-proxy.sh; \
-    echo "export HTTPS_PROXY=${HTTPS_PROXY}" >> /etc/profile.d/02-proxy.sh; \
-    source /etc/profile.d/02-proxy.sh; \
-    echo "Acquire::http::Proxy \"${HTTP_PROXY}\";" >> /etc/apt/apt.conf; \
-    echo "Acquire::https::Proxy \"${HTTPS_PROXY}\";" >> /etc/apt/apt.conf; \
-    cat /etc/apt/apt.conf; \
-    fi
 
 # Install OS dependencies for bigdl orca
 # - tini is installed as a helpful container entrypoint that reaps zombie
@@ -73,47 +62,30 @@ WORKDIR /tmp
 
 # CONDA_MIRROR is a mirror prefix to speed up downloading
 # For example, people from mainland China could set it as
-# https://mirrors.tuna.tsinghua.edu.cn/github-release/conda-forge/miniforge/LatestRelease
-ARG CONDA_MIRROR=https://github.com/conda-forge/miniforge/releases/latest/download
-# ARG CONDA_MIRROR=https://mirrors.tuna.tsinghua.edu.cn/github-release/conda-forge/miniforge/LatestRelease
+# https://mirrors.tuna.tsinghua.edu.cn/anaconda/miniconda
+ARG CONDA_MIRROR=https://repo.anaconda.com/miniconda
+# ARG CONDA_MIRROR=https://mirrors.tuna.tsinghua.edu.cn/anaconda/miniconda
 
-
-# ---- Miniforge installer ----
-# Check https://github.com/conda-forge/miniforge/releases
-# Package Manager and Python implementation to use (https://github.com/conda-forge/miniforge)
-# We're using Mambaforge installer, possible options:
-# - conda only: either Miniforge3 to use Python or Miniforge-pypy3 to use PyPy
-# - conda + mamba: either Mambaforge to use Python or Mambaforge-pypy3 to use PyPy
-# Installation: conda, mamba, pip
+# ---- Miniconda installer ----
+# Check https://docs.conda.io/en/latest/miniconda.html
+# Package Manager and Python implementation to use (https://docs.conda.io/en/latest/miniconda.html)
 RUN set -x && \
-    # Miniforge installer
-    if [ -f "/etc/profile.d/02-proxy.sh" ];then \
-    source /etc/profile.d/02-proxy.sh; \
-    fi; \
+    # Miniconda3 installer
     mkdir -p "${CONDA_DIR}" && \
-    miniforge_arch=$(uname -m) && \
-    miniforge_installer="Mambaforge-Linux-${miniforge_arch}.sh" && \
-    wget "${CONDA_MIRROR}/${miniforge_installer}" && \
-    /bin/bash "${miniforge_installer}" -f -b -p "${CONDA_DIR}" && \
-    rm "${miniforge_installer}" && \
+    miniconda_arch=$(uname -m) && \
+    miniconda_installer="Miniconda3-latest-Linux-${miniconda_arch}.sh" && \
+    wget "${CONDA_MIRROR}/${miniconda_installer}" && \
+    /bin/bash "${miniconda_installer}" -f -b -p "${CONDA_DIR}" && \
+    rm "${miniconda_installer}" && \
     # Conda configuration see https://conda.io/projects/conda/en/latest/configuration.html
     conda config --system --set auto_update_conda false && \
     conda config --system --set show_channel_urls true && \
-    if [[ "${PYTHON_VERSION}" != "default" ]]; then mamba install --quiet --yes python="${PYTHON_VERSION}"; fi && \
-    mamba list python | grep '^python ' | tr -s ' ' | cut -d ' ' -f 1,2 >> "${CONDA_DIR}/conda-meta/pinned" && \
+    if [[ "${PYTHON_VERSION}" != "default" ]]; then conda install --quiet --yes python="${PYTHON_VERSION}"; fi && \
+    conda list python | grep '^python ' | tr -s ' ' | cut -d ' ' -f 1,2 >> "${CONDA_DIR}/conda-meta/pinned" && \
     # Using conda to update all packages: https://github.com/mamba-org/mamba/issues/1092
     conda update --all --quiet --yes && \
     conda clean --all -f -y && \
-    rm -rf "/root/.cache/yarn"
-
-RUN if [ ! -z "$HTTPS_PROXY" ] || [ ! -z "$HTTP_PROXY" ]; then \
-    conda config --set proxy_servers.http ${HTTP_PROXY}; \
-    conda config --set proxy_servers.https ${HTTPS_PROXY}; \
-    pip config set global.proxy ${HTTPS_PROXY}; \
-    git config --global https.proxy ${HTTPS_PROXY}; \
-    git config --global http.proxy ${HTTP_PROXY}; \
-    # sed '<\/proxies>/i/' file # Add Proxy configuration to maven setting
-    fi; \
+    rm -rf "/root/.cache/yarn" && \
     conda init bash
 
 
